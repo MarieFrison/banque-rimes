@@ -1,0 +1,307 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Banque de rimes de la vente</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,800&family=Work+Sans:wght@400;500;600&family=DM+Mono:wght@400;500&display=swap">
+<style>
+/* Layout : un bac à vinyles — platine de recherche en haut, tracklist A1→B3, puis une pochette par son */
+:root{
+  --paper:#F4EFE6; --card:#FFFDF8; --ink:#1C1B19; --muted:#6B655C; --line:#D8D0C2;
+  --mustard:#F0B23A; --orange:#E07B45; --teal:#8FC1B5; --red:#C4481F; --chip:#F4EFE6; --hl:#1C1B19; --hl-ink:#F4EFE6;
+  --f-display:"Bricolage Grotesque","Arial Black",system-ui,sans-serif;
+  --f-body:"Work Sans",system-ui,-apple-system,"Segoe UI",sans-serif;
+  --f-mono:"DM Mono","Courier New",monospace;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --paper:#171614; --card:#22201D; --ink:#F2ECE1; --muted:#A79F92; --line:#3A3631;
+  --red:#F07A4F; --chip:#2E2B27; --hl:#F0B23A; --hl-ink:#171614; color-scheme:dark}}
+:root[data-theme="dark"]{
+  --paper:#171614; --card:#22201D; --ink:#F2ECE1; --muted:#A79F92; --line:#3A3631;
+  --red:#F07A4F; --chip:#2E2B27; --hl:#F0B23A; --hl-ink:#171614; color-scheme:dark}
+
+*{box-sizing:border-box}
+body{margin:0}
+[hidden]{display:none!important}
+img{max-width:100%}
+body{background:var(--paper);color:var(--ink);font-family:var(--f-body);font-size:16px;line-height:1.5}
+.wrap{max-width:1100px;margin:0 auto;padding-inline:16px;padding-block:24px 56px;display:flex;flex-direction:column;gap:32px}
+.mono{font-family:var(--f-mono);font-size:12.5px;letter-spacing:.12em;text-transform:uppercase}
+
+/* En-tête */
+.top{display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap;border-bottom:2px solid var(--ink);padding-bottom:10px;color:var(--ink)}
+.hero{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:24px;align-items:center}
+h1{font-family:var(--f-display);font-weight:800;font-size:clamp(44px,9vw,92px);line-height:.92;letter-spacing:-.035em;margin:0;text-wrap:balance}
+h1 em{font-style:normal;color:var(--red);display:block}
+.lede{font-size:clamp(17px,2.2vw,20px);max-width:52ch;margin:16px 0 0}
+.disc{width:clamp(120px,22vw,210px);aspect-ratio:1;max-width:100%;border-radius:50%;position:relative;
+  background:repeating-radial-gradient(circle at 50% 50%,#1C1B19 0 3px,#2b2a27 3px 4px);box-shadow:0 0 0 2px var(--ink)}
+.disc::after{content:"";position:absolute;inset:34%;border-radius:50%;
+  background:radial-gradient(circle,#1C1B19 0 7%,var(--mustard) 8% 100%)}
+.disc span{position:absolute;inset:0;display:grid;place-items:center;z-index:1;font-family:var(--f-display);font-weight:800;font-size:clamp(14px,2.4vw,22px);color:#1C1B19;padding-top:28%}
+@media (prefers-reduced-motion:no-preference){.disc{animation:spin 1.6s cubic-bezier(.2,.7,.2,1) 1}}
+@keyframes spin{from{transform:rotate(-200deg)}to{transform:rotate(0)}}
+@media (max-width:560px){.hero{grid-template-columns:1fr}.disc{display:none}}
+
+/* Platine (recherche) */
+.deck{background:#1C1B19;color:#F4EFE6;border-radius:14px;padding:20px;display:flex;flex-direction:column;gap:14px}
+.deck label{color:var(--mustard)}
+.search{display:flex;gap:10px;flex-wrap:wrap}
+.search input{flex:1 1 260px;min-width:0;font-family:var(--f-display);font-weight:600;font-size:22px;padding:12px 16px;border:0;border-radius:10px;background:#F4EFE6;color:#1C1B19}
+.search input::placeholder{color:#8B8478;font-weight:600}
+.search input:focus{outline:3px solid var(--mustard);outline-offset:2px}
+button{font:inherit;cursor:pointer}
+.btn{border:2px solid #F4EFE6;background:transparent;color:#F4EFE6;border-radius:10px;padding:10px 16px;font-weight:600}
+.btn:hover{background:#F4EFE6;color:#1C1B19}
+:is(.btn,.trk,.place):focus-visible{outline:3px solid var(--mustard);outline-offset:2px}
+
+/* Tracklist */
+.tracks{display:flex;flex-direction:column;gap:10px}
+.tracklist{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:6px}
+.trk{display:flex;align-items:center;gap:10px;text-align:left;border:1.5px solid var(--ink);background:var(--card);color:var(--ink);border-radius:10px;padding:8px 12px;font-weight:500;font-size:15px}
+.trk .code{font-family:var(--f-mono);font-size:13px;color:var(--muted);min-width:22px}
+.trk:hover{background:var(--chip)}
+.trk[aria-pressed="true"]{background:var(--ink);color:var(--paper)}
+.trk[aria-pressed="true"] .code{color:var(--mustard)}
+
+/* Mots à placer */
+.toplace{border:2px dashed var(--ink);border-radius:14px;padding:16px 18px;display:flex;flex-direction:column;gap:10px;background:var(--card)}
+.toplace h2{margin:0;font-family:var(--f-display);font-weight:800;font-size:22px;letter-spacing:-.01em}
+.places{display:flex;flex-wrap:wrap;gap:8px}
+.place{border:1.5px solid var(--ink);background:var(--paper);color:var(--ink);border-radius:999px;padding:6px 12px;font-size:15px;display:flex;gap:8px;align-items:baseline}
+.place small{font-family:var(--f-mono);font-size:12px;color:var(--red)}
+.place:hover{background:var(--mustard);color:#1C1B19}
+.place:hover small{color:#1C1B19}
+.place[disabled]{border-style:dashed;color:var(--muted);cursor:default;background:transparent}
+.place[disabled] small{color:var(--muted)}
+.hint{margin:0;font-size:14px;color:var(--muted)}
+
+/* Bac de pochettes */
+.status{display:flex;justify-content:space-between;align-items:baseline;gap:12px;flex-wrap:wrap;border-bottom:2px solid var(--ink);padding-bottom:8px}
+.status h2{margin:0;font-family:var(--f-display);font-weight:800;font-size:clamp(26px,4vw,36px);letter-spacing:-.02em}
+.status p{margin:0;color:var(--muted);font-size:15px;max-width:60ch}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(270px,1fr));gap:16px;align-items:start}
+.fam{background:var(--card);border:2px solid var(--ink);border-radius:14px;overflow:hidden;min-width:0;display:flex;flex-direction:column}
+.band{display:flex;align-items:center;gap:12px;padding:12px 16px;border-bottom:2px solid var(--ink);color:#1C1B19}
+.c0 .band{background:var(--mustard)} .c1 .band{background:var(--orange)} .c2 .band{background:var(--teal)}
+.mini{width:30px;height:30px;flex:none;border-radius:50%;background:radial-gradient(circle,#F4EFE6 0 14%,#1C1B19 16% 100%);box-shadow:inset 0 0 0 5px #1C1B19,inset 0 0 0 6px #4a4843}
+.band h3{margin:0;font-family:var(--f-display);font-weight:800;font-size:24px;letter-spacing:-.01em;line-height:1.1;flex:1;min-width:0}
+.band .ph{font-family:var(--f-mono);font-size:14px}
+.body{padding:14px 16px 16px;display:flex;flex-direction:column;gap:10px}
+.words{display:flex;flex-wrap:wrap;gap:6px}
+.w{font-size:15px;padding:3px 10px;border-radius:999px;background:var(--chip)}
+.w.on{background:var(--hl);color:var(--hl-ink);font-weight:600}
+.w.dim{opacity:.5}
+.w.typed{box-shadow:0 0 0 2px var(--red);font-weight:600}
+.note{font-size:13.5px;color:var(--muted);margin:0;border-top:1px dashed var(--line);padding-top:8px}
+.fam.solo{grid-column:1/-1;max-width:640px}
+.fam.solo .band h3{font-size:32px}
+.fam.solo .w{font-size:17px;padding:5px 13px}
+
+.empty{border:2px dashed var(--ink);border-radius:14px;padding:20px;max-width:62ch;background:var(--card)}
+.empty h3{margin:0 0 6px;font-family:var(--f-display);font-weight:800;font-size:22px}
+.empty p{margin:0}
+a{color:var(--red);text-underline-offset:3px}
+
+/* Livret : astuces */
+.liner{background:var(--mustard);color:#1C1B19;border:2px solid #1C1B19;border-radius:14px;padding:22px;display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:18px 24px}
+.liner > header{grid-column:1/-1;display:flex;justify-content:space-between;align-items:baseline;gap:10px;flex-wrap:wrap}
+.liner h2{margin:0;font-family:var(--f-display);font-weight:800;font-size:clamp(26px,4vw,34px);letter-spacing:-.02em}
+.tip{display:flex;flex-direction:column;gap:4px;min-width:0}
+.tip h3{margin:0;font-size:16.5px;font-weight:600}
+.tip p{margin:0;font-size:15px}
+.tip i{font-family:var(--f-mono);font-style:normal;font-size:14px;background:#FFFDF8;padding:0 5px;border-radius:4px}
+footer{display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap;border-top:1px solid var(--ink);padding-top:10px;color:var(--muted);font-size:14px}
+</style>
+</head>
+<body>
+
+<div class="wrap">
+  <div class="top mono"><span>1re MCV · Les étapes de la vente</span><span>Album &amp; Slam · banque de sons</span></div>
+
+  <section class="hero">
+    <div>
+      <h1>Banque de rimes <em>de la vente</em></h1>
+      <p class="lede">Des mots du métier rangés par son, pour t'aider à rimer. Les phrases, c'est toi qui les écris.</p>
+    </div>
+    <div class="disc" aria-hidden="true"><span>RIMES</span></div>
+  </section>
+
+  <section class="deck" aria-label="Recherche">
+    <label class="mono" for="q">Tape un mot ou la fin d'un mot</label>
+    <div class="search">
+      <input id="q" type="text" placeholder="client, besoin, prix, -tion…" autocomplete="off" spellcheck="false">
+      <button class="btn" id="clear" type="button">Tout afficher</button>
+    </div>
+  </section>
+
+  <section class="tracks" aria-labelledby="tl">
+    <span class="mono" id="tl">Ou choisis ta piste / ta strophe</span>
+    <div class="tracklist" id="steps" role="group" aria-labelledby="tl"></div>
+    <div class="toplace" id="toplace" hidden>
+      <h2 id="toplace-h"></h2>
+      <div class="places" id="places"></div>
+      <p class="hint">Touche un mot pour voir ce qui rime avec lui.</p>
+    </div>
+  </section>
+
+  <section aria-live="polite">
+    <div class="status"><h2 id="st-h"></h2><p id="st-p"></p></div>
+  </section>
+  <main class="grid" id="grid"></main>
+
+  <section class="liner" aria-label="Astuces">
+    <header><h2>Le livret du parolier</h2><span class="mono">4 astuces</span></header>
+    <div class="tip"><h3>Commence par le mot pro</h3><p>Place le mot du métier <b>en fin de ligne</b>, puis cherche son voisin de rime ici.</p></div>
+    <div class="tip"><h3>Inverse la phrase</h3><p>Si la rime ne vient pas, change l'ordre des mots pour qu'un autre mot arrive en dernier.</p></div>
+    <div class="tip"><h3>Pauvre ou riche ?</h3><p>1 son commun : <i>venu / reçu</i>. 3 sons communs : <i>conclusion / décision</i>. Plus il y en a, plus ça sonne.</p></div>
+    <div class="tip"><h3>L'assonance suffit</h3><p>Même voyelle sans rime parfaite : <i>client / temps</i>. En slam, ça marche très bien.</p></div>
+  </section>
+
+  <footer><span>Pour aller plus loin : <a href="https://www.rimessolides.com/" target="_blank" rel="noopener">Rimes Solides</a>, puis garde seulement les mots qui ont du sens en boutique.</span><span class="mono">Bonne écoute !</span></footer>
+</div>
+
+<script>
+const STEPS=["Prise de contact","Découverte des besoins","Reformulation","Présentation du produit","Argumentation","Traitement des objections","Conclusion de la vente","Vente additionnelle","Fidélisation"];
+const CODES=["A1","A2","A3","A4","A5","A6","B1","B2","B3"];
+
+const F=[
+ {id:"ion",label:"-on / -tion",ph:"[ɔ̃]",suf:["tion","sion","ssion","xion","on","om","ond","ont","ons"],w:"question:2,objection:6,solution:56,décision:7,conclusion:7,attention:12,satisfaction:79,reformulation:3,présentation:4,démonstration:4,argumentation:5,motivation:2,information:24,conviction:5,fidélisation:9,raison:5,façon:4,bon:1,nom:1,maison:1,animation:1,rayon:1,situation:2,intention:2,discussion:2,compréhension:3,précision:3,validation:3,sélection:4,collection:4,fonction:4,explication:4,saison:4,pantalon:4,blouson:4,talon:4,flacon:4,bouton:4,émotion:5,comparaison:5,passion:5,réputation:5,promotion:58,réduction:6,condition:6,hésitation:67,négociation:6,pardon:6,tension:6,transaction:7,livraison:79,carton:7,option:8,relation:9,invitation:9,recommandation:9,adhésion:9,son,non,long,leçon,garçon,profond,patron"},
+ {id:"an",label:"-ant / -ent",ph:"[ɑ̃]",suf:["ant","ants","ent","ents","emps","amps","and","ang","an","anc","en"],w:"client:1,accueillant:1,souriant:1,important:1,moment:1,instant:1,attentivement:2,comment:2,exigeant:2,élégant:4,vêtement:4,équipement:4,brillant:4,puissant:4,blanc:4,grand:4,argument:5,convaincant:5,pertinent:5,différent:5,gagnant:5,intéressant:5,étonnant:5,résistant:5,confiant:6,rassurant:6,patient:6,changement:6,remboursement:6,traitement:6,argent:7,comptant:7,paiement:7,encaissement:7,règlement:7,versement:7,rapidement:7,maintenant:7,complément:8,content:79,engagement:9,remerciement:9,abonnement:9,sincèrement:9,fréquemment:9,après-vente:9,temps:14,vraiment,avant,souvent,devant,dedans,pendant,enfant,parent,évidemment,simplement,directement"},
+ {id:"in",label:"-in / -ain / -ien",ph:"[ɛ̃]",suf:["ien","iens","ain","ains","aint","ein","eint","in","ins","int","ingt","yen","um"],w:"vingt:1,humain:1,matin:1,magasin:1,bien:3,main:4,parfum:4,écrin:4,satin:4,lin:4,plein:4,teint:4,technicien:4,certain:5,malin:5,soutien:6,serein:6,combien:6,rien:6,enfin:7,moyen:8,lien:9,demain:9,fin:9,prochain:9,entretien:9,lendemain:9,copain,jardin,dessin,destin,voisin,refrain,train,pain,chemin,quotidien,ancien"},
+ {id:"oin",label:"-oin",ph:"[wɛ̃]",suf:["oin","oins","oint","oing"],w:"coin:1,besoin:2,soin:29,point:3,shampoing:4,témoin:5,moins:6,appoint:7,rejoint:9,loin,recoin,joint,conjoint"},
+ {id:"eur",label:"-eur",ph:"[œʁ]",suf:["eur","eurs","œur","eure","eures","eurre"],w:"vendeur:1,chaleur:1,heure:1,visiteur:1,humeur:1,consommateur:2,erreur:3,couleur:4,odeur:4,saveur:4,senteur:4,fraîcheur:4,longueur:4,hauteur:4,largeur:4,épaisseur:4,moteur:4,capteur:4,ordinateur:4,utilisateur:4,intérieur:4,valeur:5,meilleur:5,connaisseur:5,supérieur:5,vainqueur:5,douceur:6,peur:6,acheteur:7,chargeur:8,bonheur:9,cœur:9,honneur:9,faveur:9,fournisseur,amateur,voyageur,professeur,fleur,sœur,rumeur,ardeur,beurre"},
+ {id:"e",label:"-é / -er / -ier",ph:"[e]",suf:["é","ée","és","ées","er","ez","ier","iers"],w:"saluer:1,entrée:1,quartier:1,métier:1,premier:1,écouter:26,conseiller:28,observer:2,questionner:2,rechercher:2,deviner:2,valider:3,vérifier:3,résumer:3,préciser:3,confirmer:3,montrer:4,toucher:4,essayer:4,expliquer:4,démontrer:4,manipuler:4,exposé:4,comparer:5,argumenter:5,prouver:5,préféré:5,adapté:5,soldé:5,rassurer:6,reformuler:6,négocier:6,hésiter:6,assuré:6,abîmé:6,féliciter:7,encaisser:7,décider:7,acheter:7,payer:7,emballer:7,signer:7,caissier:7,proposer:8,accompagner:8,ajouter:8,compléter:8,associer:8,suggérer:8,panier:8,remercier:9,fidéliser:9,parrainer:9,envoyer:9,congé:9,fichier:9,idée,journée,année,clé,café,marché,été,papier,atelier,dernier"},
+ {id:"ite",label:"-ité / -té",ph:"[te]",suf:["ité","ités","té","tés"],w:"disponibilité:1,convivialité:1,amabilité:1,complicité:1,curiosité:2,priorité:2,personnalité:2,clarté:3,qualité:45,beauté:4,légèreté:4,variété:4,spécialité:4,utilité:5,sécurité:5,rapidité:5,nouveauté:5,simplicité:5,originalité:5,solidité:5,efficacité:5,durabilité:5,fiabilité:5,honnêteté:6,réactivité:6,sérénité:6,vérité:6,quantité:8,gratuité:8,fidélité:9,sincérité:9,proximité:9,réalité,fierté,liberté,société,activité",note:"Rime aussi avec la famille -é / -er."},
+ {id:"ance",label:"-ance / -ence / -ense",ph:"[ɑ̃s]",suf:["ance","ances","ence","ences","ense","enses","ens","anse"],w:"présence:1,ambiance:1,bienveillance:1,exigence:2,préférence:2,silence:2,urgence:2,sens:2,pense:3,confiance:36,élégance:4,connaissance:4,tendance:4,puissance:4,différence:5,performance:5,importance:5,résistance:5,évidence:5,endurance:5,assurance:6,patience:6,dépense:6,expérience:9,fréquence:9,assistance:9,reconnaissance:9,récompense:9,chance,avance,distance,vacances,cadence,danse,France,balance"},
+ {id:"ange",label:"-ange",ph:"[ɑ̃ʒ]",suf:["ange","anges"],w:"dérange:1,range:4,orange:4,mélange:4,échange:6,arrange:6,rechange:8,change,étrange,louange,mange"},
+ {id:"age",label:"-age",ph:"[aʒ]",suf:["age","ages","âge"],w:"visage:1,langage:1,envisage:2,usage:4,image:4,essayage:4,étalage:4,affichage:4,maquillage:4,réglage:4,avantage:5,témoignage:5,dommage:6,emballage:7,engage:7,montage:8,partage:9,passage:9,nettoyage:9,message,courage,voyage,bagage,page,sage,âge,plage,nuage,garage"},
+ {id:"i",label:"-i / -ix / -uit",ph:"[i]",suf:["i","ie","is","it","ix","ies","ît","uit","uis","il"],w:"ici:1,servi:1,gentil:1,poli:1,accueilli:1,envie:2,compris:3,ainsi:3,produit:4,joli:4,petit:4,séduit:5,défi:5,favori:5,surpris:5,souci:6,prix:6,garantie:6,réduit:6,appui:6,choisi:7,fini:7,crédit:7,aujourd'hui:7,ravi:79,ceci:8,aussi:8,assorti:8,merci:9,promis:9,suivi:9,avis:9,ami:9,nuit,bruit,fruit,esprit,écrit,ennui,lui,celui,abri,acquis"},
+ {id:"ise",label:"-ise",ph:"[iz]",suf:["ise","ises","ize"],w:"précise:3,marchandise:4,chemise:4,valise:4,maîtrise:4,gourmandise:4,friandise:4,expertise:5,remise:6,franchise:6,surprise:9,prise de congé:9,entreprise,devise,bise,brise,crise,promise,exquise"},
+ {id:"ice",label:"-ice / -isse",ph:"[is]",suf:["ice","ices","isse","isses"],w:"complice:1,indice:2,notice:4,délice:4,lisse:4,bénéfice:5,sacrifice:6,propice:7,service:189,glisse,coulisse,esquisse,épice,malice,caprice,justice,exercice"},
+ {id:"oi",label:"-oi / -oix",ph:"[wa]",suf:["oi","ois","oix","oit","oie","oids","oigt","oid"],w:"roi:1,voix:1,endroit:1,pourquoi:2,quoi:2,emploi:4,bois:4,soie:4,doigt:4,étroit:4,exploit:5,foi:6,froid:6,choix:7,fois:9,mois:9,joie:9,envoi:9,toi,moi,soi,droit,loi,parfois,autrefois,croix"},
+ {id:"oir",label:"-oir / -oire",ph:"[waʁ]",suf:["oir","oire","oirs","oires"],w:"comptoir:1,recevoir:1,bonsoir:1,savoir:2,voir:4,miroir:4,tiroir:4,présentoir:4,noir:4,rasoir:4,pouvoir:5,victoire:5,croire:5,notoire:5,avoir:6,dérisoire:6,provisoire:6,accessoire:8,au revoir:9,histoire:9,mémoire:9,pourboire:9,espoir,soir,devoir,couloir,trottoir,gloire,boire,obligatoire"},
+ {id:"ar",label:"-ar / -ard / -are",ph:"[aʁ]",suf:["ar","ard","art","ars","arts","ards","are","ares"],w:"regard:1,égard:1,à part:2,standard:4,foulard:4,car:5,rare:5,retard:6,tard:6,écart:6,départ:9,plus tard:9,quart,hasard,bazar,gare,phare,bar,art,placard,guitare,fanfare"},
+ {id:"aire",label:"-aire / -ère / -er",ph:"[ɛʁ]",suf:["aire","aires","ère","ères","air","airs","ert","erts","ers","erre"],w:"ouvert:1,air:1,univers:1,découvert:2,commentaire:3,clair:3,exemplaire:4,lumière:4,matière:4,légère:4,vestiaire:4,plaire:5,populaire:5,expert:5,extraordinaire:5,cher:6,colère:6,tarifaire:6,sévère:6,affaire:7,fier:7,unitaire:7,complémentaire:8,supplémentaire:8,nécessaire:8,offert:8,sincère:9,partenaire:9,anniversaire:9,première:9,faire,manière,dernière,hiver,hier,mer,fer,vert,verre,terre,concert,désert,dessert,frère,mère,père,ordinaire",note:"Attention : « fier », « cher », « hiver » se disent [ɛʁ], mais « parler » ou « panier » se disent [e]."},
+ {id:"ir",label:"-ir / -ire",ph:"[iʁ]",suf:["ir","ire","irs","ires","uir"],w:"sourire:1,accueillir:1,servir:1,venir:1,rire:1,désir:2,définir:2,ressentir:2,dire:3,cuir:4,sentir:4,admire:4,garantir:6,réfléchir:6,choisir:7,remplir:7,finir:7,offrir:8,fournir:8,investir:5,plaisir:9,avenir:9,revenir:9,souvenir:9,partir:9,repartir:9,réussir,loisir,sortir,tenir,saisir,agir,écrire,lire,inspire,pire"},
+ {id:"ure",label:"-ure / -ur",ph:"[yʁ]",suf:["ure","ures","ur","urs","ûr","ûre"],w:"ouverture:1,posture:1,mesure:2,chaussure:4,pointure:4,texture:4,doublure:4,allure:4,brochure:4,monture:4,rassure:6,assure:6,sûr:6,dur:6,facture:7,signature:7,futur:9,aventure,nature,voiture,culture,fermeture,écriture,murmure,mur,pur"},
+ {id:"u",label:"-u / -ue / -ut",ph:"[y]",suf:["u","ue","us","ues","ut","ût","ues"],w:"bienvenue:1,venu:1,tenue:1,salut:1,début:1,inconnu:1,voulu:2,attendu:2,but:2,entendu:3,retenu:3,conçu:4,tissu:4,aperçu:4,cousu:4,convaincu:5,connu:5,perdu:6,déçu:6,résolu:6,reçu:7,obtenu:7,conclu:7,revenu:9,vu,prévu,imprévu,rue,vue,menu,plus,absolu,vertu"},
+ {id:"our",label:"-our / -ours",ph:"[uʁ]",suf:["our","ours","ourt","ourd","ourds"],w:"bonjour:1,humour:1,lourd:4,velours:4,court:4,discours:5,secours:6,recours:6,retour:9,toujours:9,parcours:9,séjour:9,jour,pour,autour,cours,tour,four,carrefour,concours,contour"},
+ {id:"eil",label:"-eil / -eille",ph:"[ɛj]",suf:["eil","eils","eille","eilles"],w:"oreille:2,conseil:28,conseille:28,appareil:4,merveille:4,émerveille:4,bouteille:8,corbeille:8,pareil,soleil,éveil,réveil,sommeil,veille,abeille"},
+ {id:"elle",label:"-elle / -el / -èle",ph:"[ɛl]",suf:["elle","elles","el","els","èle","èles"],w:"clientèle:1,professionnel:1,personnel:2,belle:4,semelle:4,modèle:4,naturel:4,nouvelle:5,essentiel:5,exceptionnel:5,réel:5,actuel:5,fidèle:9,appel:9,rappel:9,habituel:9,ciel,miel,elle,ficelle,sensationnel"},
+ {id:"esse",label:"-esse / -aisse",ph:"[ɛs]",suf:["esse","esses","aisse","aisses","ess","èce"],w:"politesse:1,gentillesse:1,délicatesse:1,hôtesse:1,intéresse:2,finesse:4,souplesse:4,vitesse:4,justesse:5,promesse:9,adresse:9,baisse:6,caisse:7,express:7,richesse,jeunesse,sagesse,tendresse,stress,presse,progresse,pièce"},
+ {id:"ette",label:"-ette / -ête / -ète",ph:"[ɛt]",suf:["ette","ettes","ête","êtes","ète","ètes","aite","aites","ettre"],w:"enquête:2,requête:2,étiquette:4,baskets:4,lunettes:4,chaussette:4,palette:4,tablette:4,silhouette:4,parfaite:5,conquête:5,honnête:6,prête:7,achète:7,emplette:7,satisfaite:9,fête:9,recette,tête,net,cette,planète,assiette"},
+ {id:"ais",label:"-ais / -et / -ès",ph:"[ɛ]",suf:["ais","ait","aits","et","ets","êt","êts","ès","aix","ai","aie"],w:"s'il vous plaît:1,budget:2,souhait:2,projet:2,objet:4,essai:4,frais:4,jouet:4,bracelet:4,gilet:4,succès:5,parfait:5,secret:5,effet:5,mais:6,regret:6,prêt:7,paquet:7,ticket:7,billet:7,complet:8,forfait:8,bouquet:8,coffret:8,satisfait:9,jamais,après,accès,progrès,vrai,paix,reflet"},
+ {id:"able",label:"-able",ph:"[abl]",suf:["able","ables"],w:"agréable:1,aimable:1,confortable:4,pliable:4,lavable:4,durable:5,fiable:5,incroyable:5,remarquable:5,véritable:5,abordable:6,raisonnable:6,imbattable:6,inoubliable:9,formidable,capable,stable,table,responsable,adorable"},
+ {id:"eme",label:"-ème / -aime",ph:"[ɛm]",suf:["ème","èmes","ême","êmes","aime","aiment","emme","èm"],w:"système:4,crème:4,j'aime:5,extrême:5,problème:6,dilemme:6,même,thème,emblème,poème,suprême,sème"},
+ {id:"ique",label:"-ique / -ic",ph:"[ik]",suf:["ique","iques","ic","ics"],w:"boutique:1,dynamique:1,sympathique:1,public:1,caractéristique:4,technique:4,électrique:4,électronique:4,ergonomique:4,mécanique:4,plastique:4,classique:4,chic:4,esthétique:4,explique:4,fabrique:4,pratique:45,unique:5,logique:5,fantastique:5,économique:5,authentique:5,critique:6,panique:6,réplique:6,clic:9,magique,musique,physique,tactique"},
+ {id:"eux",label:"-eux / -eu",ph:"[ø]",suf:["eux","eu","eue","eus","ieu","ieux","œu","œux"],w:"chaleureux:1,joyeux:1,yeux:1,lieu:1,curieux:2,bleu:4,délicieux:4,lumineux:4,moelleux:4,soyeux:4,précieux:5,mieux:5,avantageux:5,astucieux:5,ingénieux:5,merveilleux:5,sérieux:6,généreux:8,heureux:9,adieu:9,vœux:9,nombreux,soigneux,silencieux,deux,peu,jeu,feu,enjeu,milieu,cheveux"},
+ {id:"o",label:"-o / -eau / -ôt",ph:"[o]",suf:["o","ot","ots","ôt","ôts","eau","eaux","aut","auts","aud","op","os","ô","aux"],w:"bravo:1,photo:4,beau:4,chapeau:4,manteau:4,maillot:4,tricot:4,stylo:4,vélo:4,nouveau:5,niveau:5,promo:5,trop:6,faux:6,défaut:6,zéro:6,euro:6,lot:8,duo:8,bientôt:9,cadeau:9,réseau:9,tôt,plutôt,aussitôt,haut,chaud,dépôt,entrepôt,bureau,tableau,rideau,morceau,écho,radio,repos,propos,gros,dos"}
+];
+F.forEach((f,i)=>{f.c=i%3;f.words=f.w.split(",").map(s=>{const[m,st]=s.split(":");return{m:m.trim(),st:(st||"").split("").map(Number)}})});
+
+const PLACE=[
+ [["sourire","sourire"],["bonjour","bonjour"],["regard","regard"],["disponibilité","disponibilité"],["la règle des 4 × 20","vingt"]],
+ [["questions ouvertes","question"],["écoute active",null],["besoin","besoin"],["motivations (SONCAS)","motivation"],["QQOQCCP",null]],
+ [["« si je comprends bien… »","bien"],["résumer","résumer"],["vérifier","vérifier"],["valider","valider"],["confiance","confiance"]],
+ [["caractéristiques","caractéristique"],["montrer","montrer"],["faire toucher","toucher"],["faire essayer","essayer"],["mise en main","main"]],
+ [["argument","argument"],["avantage client","avantage"],["preuve (méthode CAP)",null],["SONCAS",null],["bénéfice","bénéfice"]],
+ [["objection","objection"],["écouter","écouter"],["reformuler","reformuler"],["« oui, mais… »","mais"],["rassurer","rassurer"],["prix","prix"]],
+ [["signaux d'achat",null],["question alternative","question"],["décision","décision"],["encaissement","encaissement"],["féliciter le client","féliciter"]],
+ [["produit complémentaire","complémentaire"],["accessoire","accessoire"],["service","service"],["panier moyen","moyen"],["« avec ceci… »","ceci"]],
+ [["carte de fidélité","fidélité"],["prise de congé","congé"],["service après-vente","après-vente"],["remercier","remercier"],["« à bientôt ! »","bientôt"]]
+];
+
+const $=id=>document.getElementById(id);
+const strip=s=>s.normalize("NFD").replace(/[̀-ͯ]/g,"");
+const esc=s=>s.replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+let state={step:null,q:""};
+
+function findFamily(raw){
+  const q=raw.toLowerCase().trim().replace(/^[-–\s]+/,"").replace(/[!?.…«»"]/g,"").trim();
+  if(!q) return null;
+  for(const f of F) for(const w of f.words) if(w.m===q) return {f,word:w.m};
+  for(const f of F) for(const w of f.words) if(strip(w.m)===strip(q)) return {f,word:w.m};
+  const last=q.split(/\s+/).pop();
+  const tryMatch=(word,norm)=>{let best=null,len=0;
+    for(const f of F) for(const s of f.suf){const ss=norm?strip(s):s;
+      if(word.endsWith(ss)&&ss.length>len){best=f;len=ss.length}}
+    return best};
+  const f=tryMatch(last,false)||tryMatch(strip(last),true);
+  return f?{f,word:null}:false;
+}
+
+function renderSteps(){
+  const box=$("steps");box.innerHTML="";
+  STEPS.forEach((s,i)=>{const b=document.createElement("button");
+    b.type="button";b.className="trk";b.id="step-"+(i+1);
+    b.setAttribute("aria-pressed",state.step===i+1);
+    b.innerHTML=`<span class="code">${CODES[i]}</span>${s}`;
+    b.onclick=()=>{state.step=state.step===i+1?null:i+1;state.q="";$("q").value="";render()};
+    box.appendChild(b)});
+}
+
+function renderPlaces(){
+  const tp=$("toplace");
+  if(!state.step){tp.hidden=true;return}
+  tp.hidden=false;
+  $("toplace-h").textContent=`${CODES[state.step-1]} · Mots à placer : ${STEPS[state.step-1]}`;
+  const box=$("places");box.innerHTML="";
+  PLACE[state.step-1].forEach(([label,key])=>{
+    const b=document.createElement("button");b.type="button";b.className="place";
+    const r=key?findFamily(key):null;
+    if(r){b.innerHTML=`${label}<small>${r.f.label}</small>`;
+      b.onclick=()=>{state.q=key;$("q").value=key;render();$("st-h").scrollIntoView({behavior:"smooth",block:"start"})}}
+    else{b.disabled=true;b.innerHTML=`${label}<small>sigle / expression</small>`}
+    box.appendChild(b)});
+}
+
+function card(f,opts){
+  const c=document.createElement("article");
+  c.className=`fam c${f.c}`+(opts.solo?" solo":"");
+  const ws=f.words.map(w=>{
+    let cls="w";
+    if(opts.step) cls+=w.st.includes(opts.step)?" on":" dim";
+    if(opts.typed&&w.m===opts.typed) cls+=" typed";
+    return `<span class="${cls}">${w.m}</span>`}).join("");
+  c.innerHTML=`<div class="band"><span class="mini" aria-hidden="true"></span><h3>${f.label}</h3><span class="ph">${f.ph}</span></div><div class="body"><div class="words">${ws}</div>${f.note?`<p class="note">${f.note}</p>`:""}</div>`;
+  return c;
+}
+
+function render(){
+  renderSteps();renderPlaces();
+  const grid=$("grid"),h=$("st-h"),p=$("st-p");grid.innerHTML="";
+  if(state.q.trim()){
+    const r=findFamily(state.q);
+    if(r===false){
+      h.textContent="Son introuvable";p.textContent="";
+      grid.innerHTML=`<div class="empty"><h3>Je ne reconnais pas ce son.</h3><p>Tape seulement la fin du mot (par exemple <b>-tion</b>, <b>-eur</b>, <b>-age</b>), ou dis le mot à voix haute : quel est le dernier son que tu entends ?</p></div>`;
+      return}
+    h.textContent=`Ça rime avec « ${state.q.trim()} »`;
+    p.textContent=`Son ${r.f.ph}. Choisis le mot qui a du sens dans ta boutique.`;
+    grid.appendChild(card(r.f,{solo:true,typed:r.word}));
+    return;
+  }
+  if(state.step){
+    const list=F.map(f=>({f,n:f.words.filter(w=>w.st.includes(state.step)).length}))
+      .filter(x=>x.n).sort((a,b)=>b.n-a.n).map(x=>x.f);
+    h.textContent=`Piste ${CODES[state.step-1]} · ${list.length} sons`;
+    p.textContent="Les mots en noir vont bien avec cette étape. Les autres riment aussi.";
+    list.forEach(f=>grid.appendChild(card(f,{step:state.step})));
+    return;
+  }
+  h.textContent=`Le bac à sons`;
+  p.textContent=`${F.length} sons · ${F.reduce((a,f)=>a+f.words.length,0)} mots`;
+  F.forEach(f=>grid.appendChild(card(f,{})));
+}
+
+let t;
+$("q").addEventListener("input",e=>{clearTimeout(t);t=setTimeout(()=>{state.q=e.target.value;if(state.q.trim())state.step=null;render()},150)});
+$("clear").onclick=()=>{state={step:null,q:""};$("q").value="";render()};
+render();
+</script>
+
+</body>
+</html>
